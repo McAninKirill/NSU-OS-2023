@@ -20,7 +20,7 @@ int main() {
         return -1;
     }
 
-    memset(&sock_addr, 0, sizeof(sock_path));
+    memset(&sock_addr, 0, sizeof(sock_addr));
     sock_addr.sun_family = AF_UNIX;
     strncpy(sock_addr.sun_path, sock_path, sizeof(sock_addr.sun_path) - 1);
 
