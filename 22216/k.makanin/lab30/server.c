@@ -25,7 +25,7 @@ int main() {
     srv_addr.sun_family = AF_UNIX;
     strncpy(srv_addr.sun_path, sock_path, sizeof(srv_addr.sun_path) - 1);
 
-    if (bind(srv_sock, (struct sockaddr *) &srv_addr, sizeof(srv_addr)) == -1) {
+    if (bind(srv_sock, (struct sockaddr*)&srv_addr, sizeof(srv_addr)) == -1) {
         perror("Failed to execute bind.");
         return -1;
     }

@@ -5,3 +5,4 @@ client.o: client.c
 
 server.o: server.c
 	gcc -Wall -o server.o server.c
+	
