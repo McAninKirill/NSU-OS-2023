@@ -20,11 +20,19 @@ int main() {
 
     if (child_pid == 0) {
         close(fd[0]);
-        char string1[13] = "Hello, World.";
-        ssize_t write_bytes;
+        char string1[BUFSIZ];
+        ssize_t bytes_size1;
 
-        if ((write_bytes = write(fd[1], string1, 13)) == -1) {
-            perror("Failed to write.");
+        while((bytes_size1 = read(0, string1, BUFSIZ))) {
+            if (write(fd[1], string1, bytes_size1) == -1) {
+                perror("Failed to write.");
+                close(fd[1]);
+                return -1;
+            }
+        }
+
+        if (bytes_size1 == -1) {
+            perror("Failed to read.");
             close(fd[1]);
             return -1;
         }
@@ -34,16 +42,19 @@ int main() {
 
     if (child_pid > 0) {
         close(fd[1]);
-        char string2[13];
+        char string2[BUFSIZ];
+        ssize_t bytes_size2;
 
-        if (read(fd[0], string2, 13) == -1) {
+        while((bytes_size2 = read(fd[2], string2, BUFSIZ))) {
+            for (int i = 0; i < bytes_size2; i++){
+            putchar(toupper(string2[i]));
+        }
+        }
+
+        if (bytes_size2 == -1) {
             perror("Failed to read.");
             close(fd[0]);
             return -1;
-        }
-
-        for (int i = 0; i < 13; i++){
-            printf("%c", toupper(string2[i]));
         }
 
         close(fd[0]);
