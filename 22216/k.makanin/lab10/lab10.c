@@ -31,9 +31,9 @@ int main (int argc, char *argv[]) {
         }
 
         if (WIFEXITED(wstatus)) {
-            fprintf(stderr, "Child process ended with code: %d\n", WEXITSTATUS(wstatus));
+            fprintf(stderr, "Child process was terminated normally by calling exit with status: %d.\n", WEXITSTATUS(wstatus));
         } else {
-            fprintf(stderr, "Child process ended not by exit.\n");
+            fprintf(stderr, "Child process was terminated not by calling exit, but by signal: %d.\n", WTERMSIG(wstatus));
         }
     }
     
