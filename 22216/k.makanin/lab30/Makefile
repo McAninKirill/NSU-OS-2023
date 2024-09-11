@@ -1,8 +1,8 @@
-all: client.o server.o
+all: client server
 
-client.o: client.c
-	gcc -Wall -o client.o client.c
+client: client.c
+	cc -v -lsocket -o client client.c
 
-server.o: server.c
-	gcc -Wall -o server.o server.c
-	
+server: server.c
+	cc -v -lsocket -o server server.c
+
