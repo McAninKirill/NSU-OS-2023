@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (!WIFEXITED(wstatus)) {
-            fprintf(stderr, "Failed child process.\n");
+            fprintf(stderr, "Child process was terminated not by calling exit.\n");
         }
 
         printf("\nSome text from parent process.\n");
