@@ -33,8 +33,8 @@ int main(int argc, char** argv) {
 
     while (entry != NULL) {
 	if (fnmatch(argv[1], entry->d_name, FNM_PATHNAME) == 0) {
-		printf("%s\n", entry->d_name);
-		amount++;
+            printf("%s\n", entry->d_name);
+	    amount++;
 	}
         entry = readdir(dir);
     }
