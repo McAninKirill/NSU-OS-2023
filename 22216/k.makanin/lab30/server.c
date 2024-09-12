@@ -9,9 +9,9 @@
 
 char *sock_path = "./socket";
 
-void sig_handle () {
+void sig_handle(int signo) {
     unlink(sock_path);
-    exit(0);
+	exit(0);
 }
 
 int main() {
