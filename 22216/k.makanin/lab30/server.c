@@ -9,10 +9,17 @@
 
 char *sock_path = "./socket";
 
+void sig_handle () {
+    unlink(sock_path);
+    exit(0);
+}
+
 int main() {
     struct sockaddr_un srv_addr;
     int srv_sock, clt_sock;
     ssize_t bytes_size;
+
+    signal(SIGINT, sig_handle);
 
     srv_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 

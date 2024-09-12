@@ -34,7 +34,6 @@ int main() {
     memset(buffer, 0, sizeof(buffer));
 
     while ((bytes_size = read(0, buffer, BUFSIZ)) > 0) {
-
         if (write(sock, buffer, bytes_size) == -1) {
             perror("Failed to write.");
             return -1;
@@ -42,9 +41,9 @@ int main() {
     }
 
     if (bytes_size == -1) {
-            perror("Failed to read.");
-            return -1;
-        }
+	perror("Failed to read.");
+        return -1;
+    }
 
     close(sock);
 
