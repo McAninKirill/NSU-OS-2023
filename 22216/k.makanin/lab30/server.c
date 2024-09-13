@@ -11,7 +11,7 @@ char *sock_path = "./socket";
 
 void sig_handle(int signo) {
     unlink(sock_path);
-	exit(0);
+    _exit(0);
 }
 
 int main() {
