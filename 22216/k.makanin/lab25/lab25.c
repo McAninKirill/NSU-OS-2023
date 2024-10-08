@@ -45,7 +45,7 @@ int main() {
         char string2[BUFSIZ];
         ssize_t bytes_size2;
 
-        while((bytes_size2 = read(fd[2], string2, BUFSIZ))) {
+        while((bytes_size2 = read(fd[0], string2, BUFSIZ))) {
             for (int i = 0; i < bytes_size2; i++){
             putchar(toupper(string2[i]));
         }
@@ -61,3 +61,4 @@ int main() {
         return 0;
     }
 }
+
