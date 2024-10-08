@@ -19,8 +19,6 @@ int main() {
     int srv_sock, clt_sock;
     ssize_t bytes_size;
 
-    signal(SIGINT, sig_handle);
-
     srv_sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
     if (srv_sock == -1) {
@@ -36,6 +34,8 @@ int main() {
         perror("Failed to execute bind.");
         return -1;
     }
+
+    signal(SIGINT, sig_handle);
 
     if (listen(srv_sock, 1) == -1) {
         perror("Failed to listen.");
