@@ -26,6 +26,7 @@ int addMemory(int *extension, int numberOfLine, line **lines) {
         if (*lines == NULL) {
             perror("Failed to create realloc.");
             return -1;
+	}
     }
     return 1;
 }
