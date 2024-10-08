@@ -10,11 +10,10 @@ typedef struct line {
     off_t len;
 } line;
 
-int initLine(line **lines){
+int initLine(line **lines) {
     *lines = (line*) malloc(sizeof(line));
-    if (*lines == NULL)
-    {
-        perror("Creating malloc failed");
+    if (*lines == NULL) {
+        perror("Failed to create malloc.");
         return -1;
     }
     return 1;
@@ -25,52 +24,40 @@ int addMemory(int *extension, int numberOfLine, line **lines) {
         (*extension) *= 2;
         *lines = realloc(*lines, (*extension) * sizeof(line));
         if (*lines == NULL) {
-            perror("Realloc failed");
+            perror("Failed to create realloc.");
             return -1;
-        }
     }
     return 1;
 }
 
 
 int printLine(line *lines, int fd, int choice) {
-    off_t lenStr = lines[choice - 1].len, specialOff = 0;
+    off_t lenStr = lines[choice - 1].len, specialOff = lines[choice - 1].offset, read_bytes = 1;
     char strOut[BUFSIZ];
-    while (lenStr - specialOff > BUFSIZ){
-        if (lseek(fd, lines[choice - 1].offset + specialOff, SEEK_SET) != lines[choice - 1].offset + specialOff) {
-            perror("Not correct number of bytes.");
+    while (read_bytes > 0) {
+        if (lseek(fd, specialOff, SEEK_SET) == -1) {
+            perror("Failed to execute lseek.");
             return -1;
         }
-        if (read(fd, strOut, BUFSIZ) != BUFSIZ) {
-            perror("Cannot read line.");
-            return -1;
+        if (lenStr > BUFSIZ) {
+            if ((read_bytes = read(fd, strOut, BUFSIZ)) == -1) {
+                perror("Failed to read.");
+                return -1;
+            }
+        } else {
+            if ((read_bytes = read(fd, strOut, lenStr)) == -1) {
+                perror("Failed to read.");
+                return -1;
+            }
         }
 
-        if (fwrite(strOut, 1, BUFSIZ, stdout) != BUFSIZ){
-            perror("Cannot write line.");
+        if (fwrite(strOut, 1, read_bytes, stdout) == -1) {
+            perror("Failed to fwrite.");
             return -1;
         }
-        specialOff += BUFSIZ;
+        specialOff += read_bytes;
+        lenStr -= read_bytes;
     }
-
-    if (lenStr - specialOff > 0){
-        char lineOut[lenStr - specialOff];
-        if (lseek(fd, lines[choice - 1].offset + specialOff, SEEK_SET) != lines[choice - 1].offset + specialOff) {
-            perror("Not correct number of bytes.");
-            return -1;
-        }
-
-        if (read(fd, lineOut, lenStr - specialOff) != lenStr - specialOff) {
-            perror("Cannot read line.");
-            return -1;
-        }
-        
-        if (fwrite(strOut, 1, lenStr - specialOff, stdout) != lenStr - specialOff){
-            perror("Cannot write line.");
-            return -1;
-        }
-    }
-
     return 1;
 }
 
@@ -82,15 +69,16 @@ int main(int argc, char *argv[]) {
 
     int fd = open(argv[1], O_RDONLY);
     if (fd == -1) {
-        perror("Opening failed.");
+        perror("Failed to open.");
         return -1;
     }
 
     off_t lenStr = 0,
-        previousLen = 0, 
-        current = 0;
+        previousLen = 0,
+        current = 0,
+        amountBytes;
 
-    int extension = 1, numberOfLine = 0, choice = 1;  
+    int extension = 1, numberOfLine = 0, choice = 1, scan_out;
 
     char buf[BUFSIZ];
 
@@ -99,9 +87,10 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    size_t amountBytes;
-
-    amountBytes = read(fd, buf, BUFSIZ);
+    if ((amountBytes = read(fd, buf, BUFSIZ)) == -1) {
+        perror("Failed to read.");
+        return -1;
+    }
 
     while (amountBytes > 0){
         if (buf[current] == '\n'){
@@ -121,34 +110,31 @@ int main(int argc, char *argv[]) {
             amountBytes--;
         }
         if (amountBytes == 0){
-            amountBytes = read(fd, buf, BUFSIZ);
-            if (amountBytes == 0 && lenStr > 0){
-                if (addMemory(&extension, numberOfLine, &lines) == -1){
-                    return -1;
-                }
-                lines[numberOfLine].offset = previousLen;
-                lines[numberOfLine].len = lenStr;
-                
-                numberOfLine++;
-                break;
+            if ((amountBytes = read(fd, buf, BUFSIZ)) == -1) {
+                perror("Failed to read.");
+                return -1;
             }
             current = 0;
         }
 
     }
 
+    lines[numberOfLine].offset = previousLen;
+    lines[numberOfLine].len = lenStr;
+    numberOfLine++;
+
     while (choice != 0) {
-        scanf("%d", &choice);
-        while (choice < 0 || choice > numberOfLine) {
-            fprintf(stderr, "Incorrect number.\nTry again: ");
-            scanf("%d", &choice);
-        }
-        if (choice == 0) {
-            break;
+        scan_out = scanf("%d", &choice); 
+        if (scan_out == 1) {
+            if (choice < 0 || choice > numberOfLine) {
+                fprintf(stderr, "Incorrect number.\nTry again: ");
+            } else {
+                if (printLine(lines, fd, choice) == -1){
+                    return -1;
+                }
+            }   
         } else {
-            if (printLine(lines, fd, choice) == -1){
-                return -1;
-            }
+            fprintf(stderr, "Incorrect symbol.\nTry again: ");
         }
     }
 
@@ -157,3 +143,4 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
